@@ -1,1 +1,1 @@
-python -m webservice
+web: python -m webservice
