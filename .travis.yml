@@ -1,0 +1,24 @@
+language: python
+cache: pip
+python:
+  - "3.7"
+  - "3.7-dev"
+  - "3.8-dev"
+  - "nightly"
+dist: xenial
+
+matrix:
+  allow_failures:
+  - python: "3.8-dev"
+    dist: xenial
+  - python: "nightly"
+    dist: xenial
+
+before_install:
+  - python3 -m pip install coverage
+install:
+  - python3 -m pip install -U pip -r dev-requirements.txt
+script:
+  - python3 -m coverage run --branch -m pytest tests/
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
