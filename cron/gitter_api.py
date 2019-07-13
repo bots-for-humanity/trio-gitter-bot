@@ -1,4 +1,3 @@
-
 import http
 import json
 import urllib.parse
@@ -42,8 +41,7 @@ class RateLimitExceeded(BadRequest):
         self.rate_limit = rate_limit
 
         if not args:
-            super().__init__(http.HTTPStatus.FORBIDDEN,
-                             "rate limit exceeded")
+            super().__init__(http.HTTPStatus.FORBIDDEN, "rate limit exceeded")
         else:
             super().__init__(http.HTTPStatus.FORBIDDEN, *args)
 
@@ -66,9 +64,9 @@ class GitterBroken(HTTPException):
 
     """Exception for 5XX HTTP responses."""
 
-class RateLimit():
-    def __init__(self, *, limit, remaining,
-                 reset_epoch):
+
+class RateLimit:
+    def __init__(self, *, limit, remaining, reset_epoch):
         """Instantiate a RateLimit object.
 
         The reset_epoch argument should be in seconds since the UTC epoch.
@@ -76,8 +74,7 @@ class RateLimit():
 
         self.limit = limit
         self.remaining = remaining
-        self.reset_datetime = datetime.fromtimestamp(reset_epoch/1000,
-                                                              timezone.utc)
+        self.reset_datetime = datetime.fromtimestamp(reset_epoch / 1000, timezone.utc)
 
     def __bool__(self):
         """True if requests are remaining or the reset datetime has passed."""
@@ -105,13 +102,10 @@ class RateLimit():
         except KeyError:
             return None
         else:
-            return cls(limit=limit, remaining=remaining,
-                       reset_epoch=reset_epoch)
+            return cls(limit=limit, remaining=remaining, reset_epoch=reset_epoch)
 
 
-
-class GitterAPI():
-
+class GitterAPI:
     def __init__(self, session, requester, oauth_token, cache=None):
 
         self.domain = "https://api.gitter.im"
@@ -121,28 +115,25 @@ class GitterAPI():
         self._cache = cache
         self.rate_limit = None
 
-    async def _request(self, method, url, headers,
-                       body=b''):
+    async def _request(self, method, url, headers, body=b""):
         """Make an HTTP request."""
-        async with self._session.request(method, url, headers=headers,
-                                             data=body) as response:
+        async with self._session.request(
+            method, url, headers=headers, data=body
+        ) as response:
             return response.status, response.headers, await response.read()
-
 
     def create_request_headers(self):
         """Create the request headers"""
-        return {"user-agent": self.requester,
-                   "authorization": f"bearer {self.oauth_token}",
-                   "accept": "application/json"}
-
+        return {
+            "user-agent": self.requester,
+            "authorization": f"bearer {self.oauth_token}",
+            "accept": "application/json",
+        }
 
     def format_url(self, url):
         return urllib.parse.urljoin(self.domain, url)
 
-
-    async def _make_request(self, method, url,
-                            data,
-                            ):
+    async def _make_request(self, method, url, data):
         """Construct and make an HTTP request."""
         filled_url = self.format_url(url)
         request_headers = self.create_request_headers()
@@ -166,24 +157,21 @@ class GitterAPI():
         else:
             charset = "utf-8"
             body = json.dumps(data).encode(charset)
-            request_headers['content-type'] = f"application/json; charset={charset}"
-            request_headers['content-length'] = str(len(body))
+            request_headers["content-type"] = f"application/json; charset={charset}"
+            request_headers["content-length"] = str(len(body))
         if self.rate_limit is not None:
             self.rate_limit.remaining -= 1
         response = await self._request(method, filled_url, request_headers, body)
         if not (response[0] == 304 and cached):
             data, self.rate_limit = self.decipher_response(*response)
-            has_cache_details = ("etag" in response[1]
-                                 or "last-modified" in response[1])
+            has_cache_details = "etag" in response[1] or "last-modified" in response[1]
             if self._cache is not None and cacheable and has_cache_details:
                 etag = response[1].get("etag")
                 last_modified = response[1].get("last-modified")
                 self._cache[filled_url] = etag, last_modified, data
         return data
 
-
-    def decipher_response(self, status_code, headers,
-                          body):
+    def decipher_response(self, status_code, headers, body):
         """Decipher an HTTP response for a GitHub API request.
 
         The mapping providing the headers is expected to support lowercase keys.
@@ -239,9 +227,8 @@ class GitterAPI():
             if message:
                 args = status_code_enum, message
             else:
-                args = status_code_enum,
+                args = (status_code_enum,)
             raise exc_type(*args)
-
 
     async def getitem(self, url: str):
         """Send a GET request for a single item to the specified endpoint."""
