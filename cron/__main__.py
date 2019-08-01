@@ -2,13 +2,14 @@ import asyncio
 import os
 from datetime import datetime, timedelta
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 import aiohttp
 
 from .gitter_api import GitterAPI
 from .rss_reader import RSSReader
 
-
-async def main():
+async def rss_to_gitter_job():
 
     # run the script every 10 minutes
 
@@ -19,28 +20,29 @@ async def main():
         gitter_token = os.getenv("GITTER_TOKEN")
         gitter_api = GitterAPI(session, "trio-gitter-bot", gitter_token)
 
+        # Source: https://stackexchange.com/filters/289914/trio-project-tags-on-stackoverflow-filter
         rss_reader = RSSReader(
-            "https://stackoverflow.com/feeds/tag?tagnames=python-trio&sort=newest"
+            "https://stackexchange.com/feeds/tagsets/289914/trio-project-tags-on-stackoverflow-filter?sort=active"
         )
 
         # read the RSS
         # if the post was published less than ten minutes ago, post it to gitter
-
         for e in rss_reader.read_feed(newer_than=ten_minutes_ago):
             await gitter_api.post(
                 f"/v1/rooms/{ROOM_ID}/chatMessages",
                 data={
-                    "text": f"""
-🤖❓ New `python-trio` question in stackoverflow:
-**Title**: {e['title']}
-**Posted by**: [{e['author_detail']['name']}]({e['author_detail']['href']})
-**Time**: {e['published']}
-**Summary**: {e['summary_detail']['value'][:200]}...
-
-**Read the rest at:** {e['link']}
-"""
+                    "text": f"🤖❓ New `python-trio` question on stackoverflow: [{e['title']}]({e['link']})"
                 },
             )
 
+if __name__ == '__main__':
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(rss_to_gitter_job, 'interval', minutes=10)
+    scheduler.start()
 
-asyncio.run(main())
+    # Execution will block here until Ctrl+C (Ctrl+Break on Windows) is pressed.
+    try:
+        asyncio.get_event_loop().run_forever()
+    except (KeyboardInterrupt, SystemExit):
+        pass
+
