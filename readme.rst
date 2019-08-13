@@ -7,11 +7,11 @@ to `Python Trio's Gitter channel <https://gitter.im/python-trio/general>`_.
 How it works
 ------------
 
-1. Run as a scheduled task every 5 minutes.
+1. Run as a scheduled task every 10 minutes.
 
 2. Read the RSS feed at https://stackoverflow.com/feeds/tag?tagnames=python-trio&sort=newest .
 
-3. If there is post newer than 5 minutes ago, post that to `Gitter <https://gitter.im/python-trio/general>`_.
+3. If there is post newer than 10 minutes ago, post that to `Gitter <https://gitter.im/python-trio/general>`_.
 
 About the bot
 -------------
