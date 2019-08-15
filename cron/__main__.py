@@ -12,7 +12,7 @@ from .rss_reader import RSSReader
 async def rss_to_gitter_job():
 
     # run the script every 10 minutes
-
+    print("Checking the RSS feed")
     ten_minutes_ago = datetime.now() - timedelta(minutes=10)
     ROOM_ID = os.getenv("GITTER_ROOM_ID")
 
