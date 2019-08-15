@@ -1,6 +1,8 @@
 import asyncio
 import os
+import sys
 from datetime import datetime, timedelta
+
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -9,10 +11,12 @@ import aiohttp
 from .gitter_api import GitterAPI
 from .rss_reader import RSSReader
 
+sys.stdout.reconfigure(line_buffering=True)
+
 async def rss_to_gitter_job():
 
     # run the script every 10 minutes
-
+    print("Checking the RSS feed")
     ten_minutes_ago = datetime.now() - timedelta(minutes=10)
     ROOM_ID = os.getenv("GITTER_ROOM_ID")
 

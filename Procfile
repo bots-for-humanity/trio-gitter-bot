@@ -1,2 +1,2 @@
 web: python -m webservice
-clock: python -m cron
+clock: python -u -m cron
