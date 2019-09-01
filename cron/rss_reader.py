@@ -10,12 +10,8 @@ class RSSReader:
     def read_feed(self, newer_than):
         feed = feedparser.parse(self.feed_url)
 
-        print(len(feed.entries))
-
-        for idx, entry in enumerate(feed.entries):
+        for entry in feed.entries:
             published_ts = datetime.strptime(entry["published"], "%Y-%m-%dT%H:%M:%SZ")
 
-            if published_ts < newer_than:
-                return
-
-            yield entry
+            if published_ts >= newer_than:
+                yield entry
