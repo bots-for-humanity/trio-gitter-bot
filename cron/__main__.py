@@ -13,6 +13,7 @@ from .rss_reader import RSSReader
 
 sys.stdout.reconfigure(line_buffering=True)
 
+
 async def rss_to_gitter_job():
 
     # run the script every 10 minutes
@@ -39,9 +40,10 @@ async def rss_to_gitter_job():
                 },
             )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(rss_to_gitter_job, 'interval', minutes=10)
+    scheduler.add_job(rss_to_gitter_job, "interval", minutes=10)
     scheduler.start()
 
     # Execution will block here until Ctrl+C (Ctrl+Break on Windows) is pressed.
@@ -49,4 +51,3 @@ if __name__ == '__main__':
         asyncio.get_event_loop().run_forever()
     except (KeyboardInterrupt, SystemExit):
         pass
-

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import feedparser
 
@@ -10,11 +10,12 @@ class RSSReader:
     def read_feed(self, newer_than):
         feed = feedparser.parse(self.feed_url)
 
-        for idx, entry in enumerate(feed.entries):
-            published_ts = datetime.fromisoformat(entry["published"].replace("Z", ""))
+        print(len(feed.entries))
 
-            if idx == 0:
-                if published_ts < newer_than:
-                    return
-            else:
-                yield entry
+        for idx, entry in enumerate(feed.entries):
+            published_ts = datetime.strptime(entry["published"], "%Y-%m-%dT%H:%M:%SZ")
+
+            if published_ts < newer_than:
+                return
+
+            yield entry
